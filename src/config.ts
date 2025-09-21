@@ -21,11 +21,8 @@ function validateConfig(rawConfig: any): Config {
 
 
 export function setUser(username: string) {
-    const cfg: Config = {
-        dbUrl: "postgres://example",
-        currentUserName: username,
-    };
-    
+    const cfg = readConfig();
+    cfg.currentUserName = username;
     writeConfig(cfg);
 }; 
 
@@ -42,6 +39,5 @@ function writeConfig(cfg: Config): void {
     const data = JSON.stringify(cfg);
     fs.writeFileSync(configPath, data);
 };
-
 
 
