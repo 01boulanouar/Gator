@@ -20,7 +20,7 @@ function validateConfig(rawConfig: any): Config {
 }
 
 
-export function setUser(username: string) {
+export function setUser(username: string): void {
     const cfg = readConfig();
     cfg.currentUserName = username;
     writeConfig(cfg);
