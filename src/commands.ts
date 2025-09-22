@@ -1,6 +1,3 @@
-import { setUser } from "./config";
-import { createUser, deleteUsers, getUser } from "./db/queries/users";
-
 export type CommandHandler = (cmdName: string, ...args: string[]) => Promise<void>;
 
 export type CommandsRegistry = Record<string, CommandHandler>;

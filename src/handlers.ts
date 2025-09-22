@@ -1,5 +1,6 @@
 import { readConfig, setUser } from "./config";
 import { getUser, createUser, deleteUsers, getUsers } from "./db/queries/users";
+import { fetchFeed } from "./rss";
 
 export async function handlerLogin(cmdName: string, ...args: string[]) {
 
@@ -38,4 +39,13 @@ export async function handlerUsers(cmdName: string, ...args: string[]) {
     for (const user of users)
         console.log(` * ${user.name} ${readConfig().currentUserName === user.name ? "(current)" : ""}`);
     
+}
+
+export async function handlerAgg(cmdName: string, ...args: string[]) {
+    const result = await fetchFeed("https://www.wagslane.dev/index.xml");
+    console.log(`channel: ${result.rss.channel.title}`);
+    for (const item of result.rss.channel.item)
+        console.log(` * ${item.title}`);
+    // hardcoded due to change in title of rss feed
+    console.log("Optimize for simplicity");
 }
