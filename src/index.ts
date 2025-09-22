@@ -1,5 +1,5 @@
 
-import {handlerLogin, registerCommand, runCommand } from './commands.js';
+import {handlerLogin, registerCommand, runCommand } from './commands';
 
 function main()
 {
