@@ -2,6 +2,12 @@ import { db } from "..";
 import { users, } from "../schema";
 import { eq } from "drizzle-orm";
 
+export type User = {
+    id?: string;
+    name: string;
+    created_at?: Date;
+    updated_at?: Date;
+}
 
 export async function createUser(name: string) {
     const [result] = await db.insert(users).values( { name } ).returning();
@@ -18,7 +24,7 @@ export async function getUsers() {
     return result;
 };
 
-
 export async function deleteUsers() {
     await db.delete(users);
 }
+

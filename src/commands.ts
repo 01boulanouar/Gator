@@ -14,9 +14,6 @@ export async function runCommand(registry: CommandsRegistry, cmdName: string, ..
         if (!(cmdName in registry))
             throw new Error("Command doesn't exist");
 
-        if (cmdName in ["login", "register"] && args.length < 1)
-            throw new Error("Not enough arguments");
-
         const handler = registry[cmdName];
         await handler(cmdName, ...args);
 
