@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1758534067628,
-      "tag": "0000_worried_terrax",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1758550794208,
-      "tag": "0001_curious_tattoo",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1758621371776,
-      "tag": "0002_crazy_marauders",
+      "when": 1758643182519,
+      "tag": "0000_amused_catseye",
       "breakpoints": true
     }
   ]

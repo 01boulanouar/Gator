@@ -1,19 +1,19 @@
 
 import { handlers } from "./handlers";
-import { CommandHandler, registerCommand, runCommand } from "./commands";
-import { middlewareLoggedIn, UserCommandHandler } from "./middleware";
+import {  registerCommand, runCommand } from "./commands";
+import { middlewareLoggedIn } from "./middleware";
+import { loggedInHandlers } from "./loggedInHandlers";
 
 async function main()
 {
    const CommandsRegistry = {};
  
    for (const [name, handler] of Object.entries(handlers))
-   {
-      if (["addfeed", "follow", "following"].includes(name))
-         registerCommand(CommandsRegistry, name, middlewareLoggedIn(handler as UserCommandHandler));
-      else
-         registerCommand(CommandsRegistry, name, handler as CommandHandler);
-   }
+         registerCommand(CommandsRegistry, name, handler);
+ 
+   for (const [name, handler] of Object.entries(loggedInHandlers))
+         registerCommand(CommandsRegistry, name, middlewareLoggedIn(handler));
+
 
    const [cmdName, ...args] = process.argv.slice(2);
    await runCommand(CommandsRegistry, cmdName, ...args);
