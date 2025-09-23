@@ -1,5 +1,6 @@
 import { readConfig, setUser } from "./config";
-import { getUser, createUser, deleteUsers, getUsers } from "./db/queries/users";
+import { getNextFeedToFetch, markFeedFetched } from "./db/queries/feeds";
+import { getUser, createUser, deleteUsers, getUsers, deleteAll } from "./db/queries/users";
 import { fetchFeed } from "./rss";
 
 async function handlerLogin(cmdName: string, ...args: string[]) {
@@ -36,7 +37,7 @@ async function handlerRegister(cmdName: string, ...args: string[]) {
 }
 
 async function handlerReset(cmdName: string, ...args: string[]) {
-    await deleteUsers();
+    await deleteAll();
     console.log("Cleared db");
 }
 
@@ -47,16 +48,61 @@ async function handlerUsers(cmdName: string, ...args: string[]) {
     
 }
 
-async function handlerAgg(cmdName: string, ...args: string[]) {
-    const result = await fetchFeed("https://www.wagslane.dev/index.xml");
-    console.log(JSON.stringify(result,null, 2))
-    // console.log(`channel: ${result.rss.channel.title}`);
-    // for (const item of result.rss.channel.item)
-    //     console.log(` * ${item.title}`);
+
+async function scrapeFeeds() {
+    const next_feed = await getNextFeedToFetch();
+    await markFeedFetched(next_feed);
+    const result = await fetchFeed(next_feed.url);
+    console.log(`channel: ${result.rss.channel.title}`);
+    for (const item of result.rss.channel.item)
+        console.log(` * ${item.title}`);
+
 
 }
 
+function parseDuration(durationStr: string): number {
+    const regex = /^(\d+)(ms|s|m|h)$/;
+    const match = durationStr.match(regex);
+    let duration = 10000; // default duration if regex fails
+    if (match)
+    {
+        duration = Number(match[0]);
+        if (match[1] === "s")
+            duration * 1000;
+        else if (match[1] === "m")
+            duration * 1000 * 60;
+        else if (match[1] === "h")
+             duration * 1000 * 60 * 60;
+    }
+    return (duration);
+}
 
+function handleError() {
+    console.log("failed to scrape feeds");
+    process.exit(1);
+}
+
+async function handlerAgg(cmdName: string, ...args: string[]) {
+    if (args.length < 1)
+        throw new Error("usage agg <time_between_req>");
+    
+    const time_between_req = parseDuration(args[0]);
+    console.log(`Collecting feeds every ${args[0]}`);
+
+    scrapeFeeds();
+
+    const interval = setInterval(() => {
+        scrapeFeeds();  
+    }, time_between_req);
+
+    await new Promise<void>((resolve) => {
+        process.on("SIGINT", () => {
+            console.log("Shutting down feed aggregator...");
+            clearInterval(interval);
+            resolve();
+        });
+    });
+}
 
 export const handlers = {
   login: handlerLogin,
