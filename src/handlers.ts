@@ -1,6 +1,7 @@
 import { readConfig, setUser } from "./config";
 import { getNextFeedToFetch, markFeedFetched } from "./db/queries/feeds";
-import { getUser, createUser, deleteUsers, getUsers, deleteAll } from "./db/queries/users";
+import { createPost, Post } from "./db/queries/posts";
+import { getUser, createUser, getUsers, deleteAll } from "./db/queries/users";
 import { fetchFeed } from "./rss";
 
 async function handlerLogin(cmdName: string, ...args: string[]) {
@@ -55,7 +56,16 @@ async function scrapeFeeds() {
     const result = await fetchFeed(next_feed.url);
     console.log(`channel: ${result.rss.channel.title}`);
     for (const item of result.rss.channel.item)
-        console.log(` * ${item.title}`);
+    {
+        const post: Post = {
+            title: item.title,
+            description: item.description,
+            published_at: new Date(item.pubDate),
+            feed_id: next_feed.id
+        }
+        await createPost(post);
+        console.log(`adding post: ${post.title}`);
+    }
 
 
 }

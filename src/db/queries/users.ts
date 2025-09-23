@@ -1,5 +1,5 @@
 import { db } from "..";
-import { feed_follows, feeds, users, } from "../schema";
+import { feed_follows, feeds, posts, users, } from "../schema";
 import { eq } from "drizzle-orm";
 
 export type User = {
@@ -33,5 +33,6 @@ export async function deleteAll() {
     await db.delete(feed_follows);
     await db.delete(users);
     await db.delete(feeds);
+    await db.delete(posts);
 }
 

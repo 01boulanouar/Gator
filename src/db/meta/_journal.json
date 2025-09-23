@@ -15,6 +15,27 @@
       "when": 1758643996119,
       "tag": "0001_little_dexter_bennett",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758649084207,
+      "tag": "0002_nasty_otto_octavius",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1758649234999,
+      "tag": "0003_huge_veda",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1758650622029,
+      "tag": "0004_woozy_eddie_brock",
+      "breakpoints": true
     }
   ]
 }

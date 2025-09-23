@@ -1,5 +1,6 @@
 import { createFeedFollow, deleteFeedFollow, getFeedFollowsForUser } from "./db/queries/feedfollows";
 import { createFeed, Feed, FeedFollow, getFeedByUrl } from "./db/queries/feeds";
+import { getPostsForUser } from "./db/queries/posts";
 import { User } from "./db/queries/users";
 
 function printFeed(feed: Feed, user: User) {
@@ -69,10 +70,21 @@ async function handlerUnfollow(cmdName: string, user: User, ...args: string[]) {
     console.log(JSON.stringify(result, null, 2));
 }
 
+async function handlerBrowse(cmdName: string, user: User, ...args: string[]) {
+    let limit = 2;
+    if (args.length >= 1)
+        limit = Number(args[0]);
+
+    const result = await getPostsForUser(user, limit);
+    console.log(JSON.stringify(result, null, 2));
+}
+
+
 export const loggedInHandlers = {
   addfeed: handlerAddFeed,
   feeds: handlerFeeds,
   follow: handlerFollow,
   following: handlerFollowing,
-  unfollow: handlerUnfollow
+  unfollow: handlerUnfollow,
+  browse: handlerBrowse
 }
