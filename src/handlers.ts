@@ -1,10 +1,9 @@
-import { json } from "zod";
 import { readConfig, setUser } from "./config";
-import { createFeed, Feed } from "./db/queries/feeds";
-import { getUser, createUser, deleteUsers, getUsers, User } from "./db/queries/users";
-import { fetchFeed, RSSFeed } from "./rss";
+import { createFeed, createFeedFollow, Feed, FeedFollow, getFeedByUrl, getFeedFollowsForUser, getFeeds } from "./db/queries/feeds";
+import { getUser, createUser, deleteUsers, getUsers, User, getUserById } from "./db/queries/users";
+import { fetchFeed } from "./rss";
 
-export async function handlerLogin(cmdName: string, ...args: string[]) {
+async function handlerLogin(cmdName: string, ...args: string[]) {
 
     if (args.length < 1)
         throw new Error("Not enough arguments");
@@ -18,7 +17,7 @@ export async function handlerLogin(cmdName: string, ...args: string[]) {
     console.log(`${user} has been set correctly`);
 }
 
-export async function handlerRegister(cmdName: string, ...args: string[]) {
+async function handlerRegister(cmdName: string, ...args: string[]) {
     
     if (args.length < 1)
         throw new Error("Not enough arguments");
@@ -37,16 +36,25 @@ export async function handlerRegister(cmdName: string, ...args: string[]) {
     console.log(result);
 }
 
-export async function handlerReset(cmdName: string, ...args: string[]) {
+async function handlerReset(cmdName: string, ...args: string[]) {
     await deleteUsers();
     console.log("Cleared db");
 }
 
-export async function handlerUsers(cmdName: string, ...args: string[]) {
+async function handlerUsers(cmdName: string, ...args: string[]) {
     const users = await getUsers();
     for (const user of users)
         console.log(` * ${user.name} ${readConfig().currentUserName === user.name ? "(current)" : ""}`);
     
+}
+
+async function handlerAgg(cmdName: string, ...args: string[]) {
+    const result = await fetchFeed("https://www.wagslane.dev/index.xml");
+    console.log(JSON.stringify(result,null, 2))
+    // console.log(`channel: ${result.rss.channel.title}`);
+    // for (const item of result.rss.channel.item)
+    //     console.log(` * ${item.title}`);
+
 }
 
 function printFeed(feed: Feed, user: User) {
@@ -54,7 +62,7 @@ function printFeed(feed: Feed, user: User) {
     console.log(`Feed: ${JSON.stringify(feed, null, 2)}`);
 }
 
-export async function handlerAddFeed(cmdName: string, ...args: string[]) {
+async function handlerAddFeed(cmdName: string, ...args: string[]) {
     if (args.length < 2)
         throw new Error("usage addfeed <name> <url>");
 
@@ -66,15 +74,63 @@ export async function handlerAddFeed(cmdName: string, ...args: string[]) {
         url,
         user_id: user.id
     };
-    await createFeed(feed);
+    const newFeed = await createFeed(feed);
+    
+    const feedFollow: FeedFollow = {
+        feed_id: newFeed.id,
+        user_id: user.id,
+    };
     printFeed(feed, user);
+    const result = await createFeedFollow(feedFollow);
+    console.log(JSON.stringify(result, null, 2));
 }
 
-export async function handlerAgg(cmdName: string, ...args: string[]) {
-    const result = await fetchFeed("https://www.wagslane.dev/index.xml");
-    console.log(JSON.stringify(result,null, 2))
-    // console.log(`channel: ${result.rss.channel.title}`);
-    // for (const item of result.rss.channel.item)
-    //     console.log(` * ${item.title}`);
-
+async function handlerFeeds(cmdName: string, ...args: string[]) {
+    const feeds = await getFeeds();
+    for (const feed of feeds)
+    {
+        const user = await getUserById(feed.user_id);
+        console.log(`${feed.name}`);
+        console.log(` - url: ${feed.url}`);
+        console.log(` - user: ${user.name}`);
+    }
 }
+
+async function handlerFollow(cmdName: string, ...args: string[]) {
+    if (args.length < 1)
+        throw new Error("usage: follow <url>");
+
+    const user_name = readConfig().currentUserName;
+    const user= await getUser(user_name);
+
+    const url = args[0];
+    const feed = await getFeedByUrl(url);
+
+    const feedFollow : FeedFollow = {
+        user_id: user.id,
+        feed_id: feed.id,
+    }
+    const result = await createFeedFollow(feedFollow);
+    console.log(JSON.stringify(result, null, 2));
+}
+
+async function handlerFollowing(cmdName: string, ...args: string[]) {
+    const user_name = readConfig().currentUserName;
+    const user = await getUser(user_name);
+    const result = await getFeedFollowsForUser(user);
+    
+    console.log(JSON.stringify(result, null, 2));
+}
+
+
+export const handlers = {
+  login: handlerLogin,
+  register: handlerRegister,
+  reset: handlerReset,
+  users: handlerUsers,
+  agg: handlerAgg,
+  addfeed: handlerAddFeed,
+  feeds: handlerFeeds,
+  follow: handlerFollow,
+  following: handlerFollowing
+};

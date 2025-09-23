@@ -1,17 +1,13 @@
 
-import { handlerAddFeed, handlerAgg, handlerLogin, handlerRegister, handlerReset, handlerUsers } from "./handlers";
+import { handlers } from "./handlers";
 import {registerCommand, runCommand } from "./commands";
 
 async function main()
 {
    const CommandsRegistry = {};
-   
-   registerCommand(CommandsRegistry, "login", handlerLogin);
-   registerCommand(CommandsRegistry, "register", handlerRegister);
-   registerCommand(CommandsRegistry, "reset", handlerReset);
-   registerCommand(CommandsRegistry, "users", handlerUsers);
-   registerCommand(CommandsRegistry, "agg", handlerAgg);
-   registerCommand(CommandsRegistry, "addfeed", handlerAddFeed);
+ 
+   for (const [name, handler] of Object.entries(handlers))
+      registerCommand(CommandsRegistry, name, handler);
 
    const [cmdName, ...args] = process.argv.slice(2);
    await runCommand(CommandsRegistry, cmdName, ...args);
