@@ -62,13 +62,12 @@ function printFeed(feed: Feed, user: User) {
     console.log(`Feed: ${JSON.stringify(feed, null, 2)}`);
 }
 
-async function handlerAddFeed(cmdName: string, ...args: string[]) {
+async function handlerAddFeed(cmdName: string, user: User, ...args: string[]) {
+
     if (args.length < 2)
         throw new Error("usage addfeed <name> <url>");
 
     const [name, url] = args;
-    const user = await getUser(readConfig().currentUserName);
-
     const feed : Feed = {
         name,
         url,
@@ -80,6 +79,7 @@ async function handlerAddFeed(cmdName: string, ...args: string[]) {
         feed_id: newFeed.id,
         user_id: user.id,
     };
+
     printFeed(feed, user);
     const result = await createFeedFollow(feedFollow);
     console.log(JSON.stringify(result, null, 2));
@@ -96,12 +96,10 @@ async function handlerFeeds(cmdName: string, ...args: string[]) {
     }
 }
 
-async function handlerFollow(cmdName: string, ...args: string[]) {
+async function handlerFollow(cmdName: string, user: User, ...args: string[]) {
     if (args.length < 1)
         throw new Error("usage: follow <url>");
 
-    const user_name = readConfig().currentUserName;
-    const user= await getUser(user_name);
 
     const url = args[0];
     const feed = await getFeedByUrl(url);
@@ -114,11 +112,9 @@ async function handlerFollow(cmdName: string, ...args: string[]) {
     console.log(JSON.stringify(result, null, 2));
 }
 
-async function handlerFollowing(cmdName: string, ...args: string[]) {
-    const user_name = readConfig().currentUserName;
-    const user = await getUser(user_name);
-    const result = await getFeedFollowsForUser(user);
+async function handlerFollowing(cmdName: string, user: User, ...args: string[]) {
     
+    const result = await getFeedFollowsForUser(user);
     console.log(JSON.stringify(result, null, 2));
 }
 

@@ -65,7 +65,6 @@ export async function createFeedFollow(feedFollow: FeedFollow) {
 }
 
 export async function getFeedFollowsForUser(user: User) {
-    const [fullUser] = await db.select().from(users).where(eq(users.name, user.name));
     const result = await db.select({ 
     feedFollow : {
         id: feed_follows.id,
@@ -82,9 +81,8 @@ export async function getFeedFollowsForUser(user: User) {
   }).from(feed_follows)
     .innerJoin(feeds, eq(feed_follows.feed_id, feeds.id))
     .innerJoin(users, eq(feed_follows.user_id, users.id))
-    .where(eq(feed_follows.user_id, fullUser.id));
-    
-    ;
+    .where(eq(feed_follows.user_id, user.id));
+
     return result;
 };
 

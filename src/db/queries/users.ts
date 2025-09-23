@@ -3,7 +3,7 @@ import { users, } from "../schema";
 import { eq } from "drizzle-orm";
 
 export type User = {
-    id?: string;
+    id: string;
     name: string;
     created_at?: Date;
     updated_at?: Date;
