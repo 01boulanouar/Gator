@@ -1,6 +1,6 @@
 # Gator CLI
 
-Gator is a command-line RSS feed aggregator.
+gator is a command-line RSS feed aggregator.
 
 ## Prerequisites
 
